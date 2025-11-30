@@ -4,13 +4,22 @@ import api from "../services/api";
 
 // Reusable Stat Card (No changes needed here, it's perfect)
 const StatCard = ({ title, value, icon: Icon, color }) => (
-  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+  <div
+    // 1. CONTAINER: Added bg-black/50 (semi-transparent black), backdrop-blur-md, and dark border
+    className="bg-black/50 backdrop-blur-md p-6 rounded-xl shadow-lg border border-gray-700 transition-all hover:bg-black/60"
+  >
     <div className="flex items-center justify-between">
       <div>
-        <p className="text-sm text-gray-500 font-medium">{title}</p>
-        <h3 className="text-2xl font-bold text-gray-900 mt-1">{value}</h3>
+        {/* 2. TITLE: Changed text-gray-500 to text-gray-400 (light gray) */}
+        <p className="text-sm text-gray-400 font-medium">{title}</p>
+
+        {/* 3. VALUE: Changed text-gray-900 to text-white */}
+        <h3 className="text-2xl font-bold text-white mt-1">{value}</h3>
       </div>
-      <div className={`p-3 rounded-full ${color} bg-opacity-10`}>
+
+      {/* Icon Container: Ensure text color is adjusted based on 'color' prop */}
+      <div className={`p-3 rounded-full ${color} bg-opacity-20`}>
+        {/* We increase opacity to 20% for better visibility on the dark card background */}
         <Icon className={`w-6 h-6 ${color.replace('bg-', 'text-')}`} />
       </div>
     </div>
@@ -46,7 +55,7 @@ const Dashboard = () => {
         activePlans: plansRes.data.data.length,
         totalRevenue: revenueRes.data.total_revenue || 0,
         // Take only the first 5 payments for the "Recent Activity" list
-        recentPayments: historyRes.data.data.slice(0, 5) 
+        recentPayments: historyRes.data.data.slice(0, 5)
       });
 
     } catch (error) {
@@ -62,61 +71,84 @@ const Dashboard = () => {
     <div className="space-y-6">
       {/* 1. Real Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          title="Total Members" 
-          value={stats.totalMembers} 
-          icon={Users} 
-          color="bg-blue-500" 
+        <StatCard
+          title="Total Members"
+          value={stats.totalMembers}
+          icon={Users}
+          color="bg-blue-500"
         />
-        <StatCard 
-          title="Total Revenue" 
-          value={`${stats.totalRevenue}`} 
-          icon={DollarSign} 
-          color="bg-green-500" 
+        <StatCard
+          title="Total Revenue"
+          value={`${stats.totalRevenue}`}
+          icon={DollarSign}
+          color="bg-green-500"
         />
-        <StatCard 
-          title="Active Plans" 
-          value={stats.activePlans} 
-          icon={TrendingUp} 
-          color="bg-purple-500" 
+        <StatCard
+          title="Active Plans"
+          value={stats.activePlans}
+          icon={TrendingUp}
+          color="bg-purple-500"
         />
-        <StatCard 
-          title="Recent Transactions" 
-          value={stats.recentPayments.length} 
-          icon={CreditCard} 
-          color="bg-orange-500" 
+        <StatCard
+          title="Recent Transactions"
+          value={stats.recentPayments.length}
+          icon={CreditCard}
+          color="bg-orange-500"
         />
       </div>
 
       {/* 2. Recent Activity Section (Real Data) */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Recent Payments</h3>
-        
+      {/* CONTAINER: 
+    - bg-transparent: No background color at all.
+    - No backdrop-blur: The background image is seen perfectly clearly.
+    - border-white/20: A faint outline to define the box area.
+*/}
+      <div className="bg-transparent border border-white/20 rounded-xl p-6">
+
+        {/* Title: Added drop-shadow-md so it pops off the background */}
+        <h3 className="text-lg font-bold text-white mb-4 drop-shadow-md">Recent Payments</h3>
+
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead className="text-gray-500 border-b border-gray-100 text-sm">
+
+            {/* Table Head: White text with shadow */}
+            <thead className="text-gray-200 border-b border-white/20 text-sm">
               <tr>
-                <th className="py-3 font-medium">Member</th>
-                <th className="py-3 font-medium">Amount</th>
-                <th className="py-3 font-medium">Date</th>
-                <th className="py-3 font-medium">Status</th>
+                <th className="py-3 font-medium drop-shadow-sm">Member</th>
+                <th className="py-3 font-medium drop-shadow-sm">Amount</th>
+                <th className="py-3 font-medium drop-shadow-sm">Date</th>
+                <th className="py-3 font-medium drop-shadow-sm">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 text-sm">
+
+            {/* Table Body */}
+            <tbody className="divide-y divide-white/20 text-sm">
               {stats.recentPayments.length === 0 ? (
-                 <tr><td colSpan="4" className="text-center py-6 text-gray-400">No activity yet.</td></tr>
+                <tr>
+                  <td colSpan="4" className="text-center py-6 text-gray-300 drop-shadow-sm">
+                    No activity yet.
+                  </td>
+                </tr>
               ) : (
                 stats.recentPayments.map((pay) => (
-                  <tr key={pay.id} className="hover:bg-gray-50">
-                    <td className="py-3 font-medium text-gray-800">{pay.full_name}</td>
-                    <td className="py-3 text-green-600 font-bold">+PKR {pay.amount}</td>
-                    <td className="py-3 text-gray-500">
-                        {new Date(pay.payment_date).toLocaleDateString()}
+                  // Row Hover: Still nice to have a faint highlight when mouse is over
+                  <tr key={pay.id} className="hover:bg-white/10 transition-colors duration-200">
+
+                    <td className="py-3 font-medium text-white drop-shadow-sm">{pay.full_name}</td>
+
+                    <td className="py-3 text-emerald-400 font-bold drop-shadow-md">
+                      +PKR {pay.amount}
                     </td>
+
+                    <td className="py-3 text-gray-300 drop-shadow-sm">
+                      {new Date(pay.payment_date).toLocaleDateString()}
+                    </td>
+
                     <td className="py-3">
-                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
-                            Completed
-                        </span>
+                      {/* Badge: Kept semi-transparent so the status is readable */}
+                      <span className="bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full text-xs border border-emerald-500/30 shadow-sm backdrop-blur-none">
+                        Completed
+                      </span>
                     </td>
                   </tr>
                 ))
